@@ -1,9 +1,9 @@
-console.log('App.js RUN');
 import { Server } from "socket.io";
 import Table from "./poker_modules/table.js";
 import Player from "./poker_modules/player.js";
 
-const io = new Server(3001);
+const PORT = process.env.PORT || 8080;
+const io = new Server(PORT);
 
 const players = [];
 const tables = [];
@@ -138,3 +138,5 @@ io.on("connection", (socket) => {
     });
 
 });
+
+console.log(`Your server available at http://localhost:${PORT}/socket.io/`);
