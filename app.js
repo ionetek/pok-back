@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
 
         // If a new screen name is posted
         if( typeof newScreenName !== 'undefined' ) {
-            let newScreenName = newScreenName.trim();
+            newScreenName = newScreenName.trim();
             // If the new screen name is not an empty string
             if( newScreenName && typeof players[socket.id] === 'undefined' ) {
                 let nameExists = false;
@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
                     // Creating the player object
                     players[socket.id] = new Player( socket, newScreenName, 1000 );
                    
-                    //callback( { 'success': true, screenName: newScreenName, totalChips: players[socket.id].chips } );
+                    callback( { 'success': true, screenName: newScreenName, totalChips: players[socket.id].chips } );
                 } else {
                     callback( { 'success': false, 'message': 'This name is taken' } );
                 }
@@ -68,8 +68,6 @@ io.on("connection", (socket) => {
             socket.join( 'table-' + tableId );
             // Add the room to the player's data
             players[socket.id].room = tableId;
-            //Нужен ли здесь emit?
-            socket.emit( players[socket.id].room );
         }
     });
 
@@ -84,7 +82,7 @@ io.on("connection", (socket) => {
 			players[socket.id].room = null;
 		}
 	});
-    socket.on('sitOnTheTable', function( data ) {
+    socket.on('sitOnTheTable', function( data, callback  ) {
         if(
             // A seat has been specified
             typeof data.seat !== 'undefined'
@@ -162,8 +160,7 @@ io.on("connection", (socket) => {
             // Remove the player object from the players array
             delete players[socket.id];
         }
- // Почему здесь  emit?
-        socket.emit('table-data',tables[1].public);
+ 
     });
     /**
 	 * Когда игрок, который сидит на столе, но не сидит в игре, запрашивает возможность сесть в игру.
