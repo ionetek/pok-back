@@ -132,9 +132,9 @@ io.on("connection", (socket) => {
 		// If the player was sitting on a table
 		if( players[socket.id].sittingOnTable !== false && tables[players[socket.id].sittingOnTable] !== false ) {
 			// The seat on which the player was sitting
-			var seat = players[socket.id].seat;
+			let seat = players[socket.id].seat;
 			// The table on which the player was sitting
-			var tableId = players[socket.id].sittingOnTable;
+			let tableId = players[socket.id].sittingOnTable;
 			// Remove the player from the seat
 			tables[tableId].playerLeft( seat );
 			// Send the number of total chips back to the user
@@ -169,7 +169,7 @@ io.on("connection", (socket) => {
      socket.on('sitIn', function( callback ) {
 		if( players[socket.id].sittingOnTable !== false && players[socket.id].seat !== null && !players[socket.id].public.sittingIn ) {
 			// Getting the table id from the player object
-			var tableId = players[socket.id].sittingOnTable;
+			let tableId = players[socket.id].sittingOnTable;
 			tables[tableId].playerSatIn( players[socket.id].seat );
 			callback( { 'success': true } );
 		}
@@ -182,8 +182,8 @@ io.on("connection", (socket) => {
 	 */
      socket.on('postBlind', function( postedBlind, callback ) {
 		if( players[socket.id].sittingOnTable !== false ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 
 			if( tables[tableId] 
 				&& typeof tables[tableId].seats[activeSeat].public !== 'undefined' 
@@ -212,8 +212,8 @@ io.on("connection", (socket) => {
 	 */
 	socket.on('check', function( callback ){
 		if( players[socket.id].sittingOnTable !== 'undefined' ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 
 			if( tables[tableId] 
 				&& tables[tableId].seats[activeSeat].socket.id === socket.id 
@@ -232,8 +232,8 @@ io.on("connection", (socket) => {
 	 */
 	socket.on('fold', function( callback ){
 		if( players[socket.id].sittingOnTable !== false ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 
 			if( tables[tableId] && tables[tableId].seats[activeSeat].socket.id === socket.id && ['preflop','flop','turn','river'].indexOf(tables[tableId].public.phase) > -1 ) {
 				// Sending the callback first, because the next functions may need to send data to the same player, that shouldn't be overwritten
@@ -248,8 +248,8 @@ io.on("connection", (socket) => {
 	 */
 	socket.on('call', function( callback ){
 		if( players[socket.id].sittingOnTable !== 'undefined' ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 
 			if( tables[tableId] && tables[tableId].seats[activeSeat].socket.id === socket.id && tables[tableId].public.biggestBet && ['preflop','flop','turn','river'].indexOf(tables[tableId].public.phase) > -1 ) {
 				// Sending the callback first, because the next functions may need to send data to the same player, that shouldn't be overwritten
@@ -265,8 +265,8 @@ io.on("connection", (socket) => {
 	 */
 	socket.on('bet', function( amount, callback ){
 		if( players[socket.id].sittingOnTable !== 'undefined' ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 
 			if( tables[tableId] && tables[tableId].seats[activeSeat].socket.id === socket.id && !tables[tableId].public.biggestBet && ['preflop','flop','turn','river'].indexOf(tables[tableId].public.phase) > -1 ) {
 				// Validating the bet amount
@@ -285,8 +285,8 @@ io.on("connection", (socket) => {
 	 */
 	socket.on('raise', function( amount, callback ){
 		if( players[socket.id].sittingOnTable !== 'undefined' ) {
-			var tableId = players[socket.id].sittingOnTable;
-			var activeSeat = tables[tableId].public.activeSeat;
+			let tableId = players[socket.id].sittingOnTable;
+			let activeSeat = tables[tableId].public.activeSeat;
 			
 			if(
 				// The table exists
