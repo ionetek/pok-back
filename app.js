@@ -29,7 +29,7 @@ tables[3] = new Table( 3, 'Sample 6-handed Private Table', eventEmitter(3), 6, 2
 io.on("connection", (socket) => {
     socket.emit('table-data',tables[1].public);
 
-    socket.on('register', function( newScreenName ) {
+    socket.on('register', function( newScreenName, callback) {
 
         // If a new screen name is posted
         if( typeof newScreenName !== 'undefined' ) {

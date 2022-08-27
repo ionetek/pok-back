@@ -178,13 +178,17 @@ Player.prototype.evaluateHand = function( board ) {
         'cards'     : [],
     };
 
+    if (!cards[0][1] || !cards[0]) return;
+
     // Getting the suit of the first card
     flushes[ cards[0][1] ].push( cards[0] );
     // Pushing the first card in the array of the straight
     straight.push( cards[0] );
 
+
+    let openedCards = cards.filter( card => !!card )
     // For the rest of the cards
-    for( var i=1 ; i<7 ; i++ ) {
+    for( var i=1 ; i<openedCards.length ; i++ ) {
         // Get the suit information
         flushes[ cards[i][1] ].push( cards[i] );
 
@@ -428,38 +432,91 @@ Player.prototype.evaluateHand = function( board ) {
         case 'pair':
             evaluatedHand.name = 'a pair of ' + getCardName( evaluatedHand.cards[0][0], true );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 1000000;
+            evaluatedHand.combination = [evaluatedHand.cards[0], evaluatedHand.cards[1]];
             break;
         case 'two pair':
             evaluatedHand.name = 'two pair, ' + getCardName( evaluatedHand.cards[0][0], true ) + ' and ' + getCardName( evaluatedHand.cards[2][0], true );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 2000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3]
+            ];
             break;
         case 'three of a kind':
             evaluatedHand.name = 'three of a kind, ' + getCardName( evaluatedHand.cards[0][0], true );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 3000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2]
+            ];
             break;
         case 'straight':
             evaluatedHand.name = 'a straight to ' + getCardName( straight[0][0] );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 4000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+                evaluatedHand.cards[4],
+            ];
             break;
         case 'flush':
             evaluatedHand.name = 'a flush, ' + getCardName( evaluatedHand.cards[0][0] ) + ' high';
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 5000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+                evaluatedHand.cards[4],
+            ];
             break;
         case 'full house':
             evaluatedHand.name = 'a full house, ' + getCardName( evaluatedHand.cards[0][0], true ) + ' full of ' + getCardName( evaluatedHand.cards[3][0], true );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 6000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+                evaluatedHand.cards[4],
+            ];
             break;
         case 'four of a kind':
             evaluatedHand.name = 'four of a kind, ' + getCardName( evaluatedHand.cards[0][0], true );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 7000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+            ];
             break;
         case 'straight flush':
             evaluatedHand.name = 'a straight flush, ' + getCardName( evaluatedHand.cards[4][0] ) + ' to ' + getCardName( evaluatedHand.cards[0][0] );
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 8000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+                evaluatedHand.cards[4],
+            ];
             break;
         case 'royal flush':
             evaluatedHand.name = 'a royal flush';
             evaluatedHand.rating = rateHand( evaluatedHand.cards ) + 8000000;
+            evaluatedHand.combination = [
+                evaluatedHand.cards[0],
+                evaluatedHand.cards[1],
+                evaluatedHand.cards[2],
+                evaluatedHand.cards[3],
+                evaluatedHand.cards[4],
+            ];
             break;
     }
     this.evaluatedHand = evaluatedHand;

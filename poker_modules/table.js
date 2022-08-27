@@ -268,6 +268,7 @@ Table.prototype.initializeSmallBlind = function() {
 	// Start asking players to post the small blind
 	this.seats[this.public.activeSeat].socket.emit('postSmallBlind');
 	this.emitEvent( 'table-data', this.public );
+	this.checkCombination();
 };
 
 /**
@@ -277,6 +278,7 @@ Table.prototype.initializeBigBlind = function() {
 	// Set the table phase to 'bigBlind'
 	this.public.phase = 'bigBlind';
 	this.actionToNextPlayer();
+	this.checkCombination();
 };
 
 /**
@@ -296,6 +298,8 @@ Table.prototype.initializePreflop = function() {
 		currentPlayer = this.findNextPlayer( currentPlayer );
 	}
 
+	this.checkCombination();
+
 	this.actionToNextPlayer();
 };
 
@@ -307,14 +311,17 @@ Table.prototype.initializeNextPhase = function() {
 		case 'preflop':
 			this.public.phase = 'flop';
 			this.public.board = this.deck.deal( 3 ).concat( ['', ''] );
+			this.checkCombination();
 			break;
 		case 'flop':
 			this.public.phase = 'turn';
 			this.public.board[3] = this.deck.deal( 1 )[0];
+			this.checkCombination();
 			break;
 		case 'turn':
 			this.public.phase = 'river';
 			this.public.board[4] = this.deck.deal( 1 )[0];
+			this.checkCombination();
 			break;
 	}
 
@@ -769,6 +776,7 @@ Table.prototype.removeAllCardsFromPlay = function() {
  * Actions that should be taken when the round has ended
  */
 Table.prototype.endRound = function() {
+	this.emitEvent( 'endRound' );
 	// If there were any bets, they are added to the pot
 	this.pot.addTableBets( this.seats );
 	if( !this.pot.isEmpty() ) {
@@ -813,6 +821,30 @@ Table.prototype.stopGame = function() {
 Table.prototype.log = function(log) {
 	this.public.log = null;
 	this.public.log = log;
+}
+
+Table.prototype.checkCombination = function() {
+	this.seats.forEach( (player, id) => {
+
+		if (player && player.public.inHand) {
+
+			player.evaluateHand( this.public.board );
+			if (player.evaluatedHand.combination) {
+				player.socket.emit( 'combination', {
+					rank: player.evaluatedHand.rank,
+					cards: player.evaluatedHand.combination,
+				} );
+
+				console.log('Player ', player.public.name, 'has combination: ', player.evaluatedHand.combination );
+			} else {
+				player.socket.emit( 'combination', {
+					rank: '',
+					cards: [],
+				} );
+			}
+
+		}
+	})
 }
 
 //module.exports = Table;

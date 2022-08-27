@@ -129,6 +129,9 @@ Pot.prototype.destributeToWinners = function( players, firstPlayerToAct ) {
         }
       }
     }
+
+    //console.log('WIN', players[winners[0]].evaluatedHand)
+
     if( winners.length === 1 ) {
       players[winners[0]].public.chipsInPlay += this.pots[i].amount;
       var htmlHand = '[' + players[winners[0]].evaluatedHand.cards.join(', ') + ']';
