@@ -20,7 +20,9 @@ var Player = function( socket, name, chips ) {
         // The cards the player is holding, made public at the showdown
         cards: [],
         // The amount the player has betted in the current round
-        bet: 0
+        bet: 0,
+        //Current hand bet
+        currentHandBet: 0
     };
     // The socket object of the user
     this.socket = socket;
@@ -99,7 +101,8 @@ Player.prototype.bet = function( amount ) {
         amount = this.public.chipsInPlay;
     }
     this.public.chipsInPlay -= amount;
-    this.public.bet += +amount;
+    this.public.bet += amount;
+    this.public.currentHandBet +=amount;
 }
 
 /**
@@ -112,7 +115,8 @@ Player.prototype.raise = function( amount ) {
         amount = this.public.chipsInPlay;
     }
     this.public.chipsInPlay -= amount;
-    this.public.bet += +amount;
+    this.public.bet += amount;
+    this.public.currentHandBet +=amount;
 }
 
 /**
@@ -123,6 +127,7 @@ Player.prototype.prepareForNewRound = function() {
     this.public.cards = [];
     this.public.hasCards = false;
     this.public.bet = 0;
+    this.public.currentHandBet = 0;
     this.public.inHand = true;
     this.evaluatedHand = {};
 }
@@ -315,6 +320,7 @@ Player.prototype.evaluateHand = function( board ) {
                         }
                         i++;
                     }
+
                 }
             }
             // If there are two pairs

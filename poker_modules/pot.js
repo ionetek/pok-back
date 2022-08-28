@@ -112,6 +112,7 @@ Pot.prototype.addPlayersBets = function( player ) {
 Pot.prototype.destributeToWinners = function( players, firstPlayerToAct ) {
   var potsCount = this.pots.length;
   var messages = [];
+  var winnersAndPots = {}
 
   // For each one of the pots, starting from the last one
   for( var i=potsCount-1 ; i>=0 ; i-- ) {
@@ -130,13 +131,22 @@ Pot.prototype.destributeToWinners = function( players, firstPlayerToAct ) {
       }
     }
 
-    //console.log('WIN', players[winners[0]].evaluatedHand)
-
     if( winners.length === 1 ) {
       players[winners[0]].public.chipsInPlay += this.pots[i].amount;
       var htmlHand = '[' + players[winners[0]].evaluatedHand.cards.join(', ') + ']';
       htmlHand = htmlHand.replace(/s/g, '&#9824;').replace(/c/g, '&#9827;').replace(/h/g, '&#9829;').replace(/d/g, '&#9830;');
       messages.push( players[winners[0]].public.name + ' wins the pot (' + this.pots[i].amount + ') with ' + players[winners[0]].evaluatedHand.name + ' ' + htmlHand );
+
+      //ToDo сделать ключом какое-то другое поле
+      if (winnersAndPots[players[winners[0]].public.name]) {
+        winnersAndPots[players[winners[0]].public.name].amount += this.pots[i].amount
+      } else {
+        winnersAndPots[players[winners[0]].public.name] = {
+          player: players[winners[0]],
+          amount: this.pots[i].amount
+        }
+      }
+
     } else {
       var winnersCount = winners.length;
 
@@ -155,9 +165,29 @@ Pot.prototype.destributeToWinners = function( players, firstPlayerToAct ) {
         var htmlHand = '[' + players[winners[j]].evaluatedHand.cards.join(', ') + ']';
         htmlHand = htmlHand.replace(/s/g, '&#9824;').replace(/c/g, '&#9827;').replace(/h/g, '&#9829;').replace(/d/g, '&#9830;');
         messages.push( players[winners[j]].public.name + ' ties the pot (' + playersWinnings + ') with ' + players[winners[j]].evaluatedHand.name + ' ' + htmlHand );
+
+        if (winnersAndPots[players[winners[j]].public.name]) {
+          winnersAndPots[players[winners[j]].public.name].amount += this.pots[i].amount
+        } else {
+          winnersAndPots[players[winners[j]].public.name] = {
+            player: players[winners[j]],
+            amount: this.pots[j].amount
+          }
+        }
+
       }
     }
   }
+
+  for (let key in winnersAndPots) {
+    let winAmount = winnersAndPots[key].amount - winnersAndPots[key].player.public.currentHandBet
+
+    //Отправляем уведомление о выыигрыше
+    winnersAndPots[key].player.socket.emit('youWin', winAmount)
+
+  }
+
+
 
   this.reset();
 
@@ -174,12 +204,13 @@ Pot.prototype.giveToWinner = function( winner ) {
   var totalAmount = 0;
 
   for( var i=potsCount-1 ; i>=0 ; i-- ) {
+    console.log('WIN',winner.public)
     winner.public.chipsInPlay += this.pots[i].amount;
     totalAmount += this.pots[i].amount;
   }
 
   this.reset();
-  return winner.public.name + ' wins the pot (' + totalAmount + ')';
+  return totalAmount;
 }
 
 /**

@@ -416,7 +416,7 @@ Table.prototype.showdown = function() {
 	var that = this;
 	setTimeout( function(){
 		that.endRound();
-	}, 2000 );
+	}, 5000 );
 };
 
 /**
@@ -489,7 +489,11 @@ Table.prototype.playerFolded = function() {
 	if( this.playersInHandCount <= 1 ) {
 		this.pot.addTableBets( this.seats );
 		var winnersSeat = this.findNextPlayer();
-		this.pot.giveToWinner( this.seats[winnersSeat] );
+		var winPot = this.pot.giveToWinner( this.seats[winnersSeat] );
+
+		var winAmount = winPot - this.seats[winnersSeat].public.currentHandBet
+		this.seats[winnersSeat].socket.emit('youWin', winAmount)
+
 		this.endRound();
 	} else {
 		if( this.lastPlayerToAct == this.public.activeSeat ) {
@@ -781,7 +785,11 @@ Table.prototype.endRound = function() {
 	this.pot.addTableBets( this.seats );
 	if( !this.pot.isEmpty() ) {
 		var winnersSeat = this.findNextPlayer( 0 );
-		this.pot.giveToWinner( this.seats[winnersSeat] );
+		var winPot = this.pot.giveToWinner( this.seats[winnersSeat] );
+		var winAmount = winPot - this.seats[winnersSeat].public.currentHandBet
+
+		this.seats[winnersSeat].socket.emit('youWin', winAmount)
+
 	}
 
 	// Sitting out the players who don't have chips
@@ -834,8 +842,6 @@ Table.prototype.checkCombination = function() {
 					rank: player.evaluatedHand.rank,
 					cards: player.evaluatedHand.combination,
 				} );
-
-				console.log('Player ', player.public.name, 'has combination: ', player.evaluatedHand.combination );
 			} else {
 				player.socket.emit( 'combination', {
 					rank: '',
