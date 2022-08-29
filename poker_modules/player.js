@@ -22,7 +22,9 @@ var Player = function( socket, name, chips ) {
         // The amount the player has betted in the current round
         bet: 0,
         //Current hand bet
-        currentHandBet: 0
+        currentHandBet: 0,
+        //Last action
+        lastAction: ''
     };
     // The socket object of the user
     this.socket = socket;
@@ -103,6 +105,7 @@ Player.prototype.bet = function( amount ) {
     this.public.chipsInPlay -= amount;
     this.public.bet += amount;
     this.public.currentHandBet +=amount;
+
 }
 
 /**
@@ -117,6 +120,7 @@ Player.prototype.raise = function( amount ) {
     this.public.chipsInPlay -= amount;
     this.public.bet += amount;
     this.public.currentHandBet +=amount;
+
 }
 
 /**

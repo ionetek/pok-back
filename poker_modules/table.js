@@ -287,6 +287,7 @@ Table.prototype.initializeBigBlind = function() {
 Table.prototype.initializePreflop = function() {
 	// Set the table phase to 'preflop'
 	this.public.phase = 'preflop';
+	this.clearLastActions();
 	var currentPlayer = this.public.activeSeat;
 	// The player that placed the big blind is the last player to act for the round
 	this.lastPlayerToAct = this.public.activeSeat;
@@ -310,16 +311,19 @@ Table.prototype.initializeNextPhase = function() {
 	switch( this.public.phase ) {
 		case 'preflop':
 			this.public.phase = 'flop';
+			this.clearLastActions();
 			this.public.board = this.deck.deal( 3 ).concat( ['', ''] );
 			this.checkCombination();
 			break;
 		case 'flop':
 			this.public.phase = 'turn';
+			this.clearLastActions();
 			this.public.board[3] = this.deck.deal( 1 )[0];
 			this.checkCombination();
 			break;
 		case 'turn':
 			this.public.phase = 'river';
+			this.clearLastActions();
 			this.public.board[4] = this.deck.deal( 1 )[0];
 			this.checkCombination();
 			break;
@@ -347,7 +351,6 @@ Table.prototype.initializeNextPhase = function() {
  */
 Table.prototype.actionToNextPlayer = function() {
 	this.public.activeSeat = this.findNextPlayer( this.public.activeSeat, ['chipsInPlay', 'inHand'] );
-
 	switch( this.public.phase ) {
 		case 'smallBlind':
 			this.seats[this.public.activeSeat].socket.emit( 'postSmallBlind' );
@@ -449,6 +452,9 @@ Table.prototype.playerPostedSmallBlind = function() {
 		notification: 'Posted blind'
 	});
 	this.public.biggestBet = this.public.biggestBet < bet ? bet : this.public.biggestBet;
+
+	this.seats[this.public.activeSeat].public.lastAction = 'SB';
+
 	this.emitEvent( 'table-data', this.public );
 	this.initializeBigBlind();
 };
@@ -467,6 +473,8 @@ Table.prototype.playerPostedBigBlind = function() {
 		notification: 'Posted blind'
 	});
 	this.public.biggestBet = this.public.biggestBet < bet ? bet : this.public.biggestBet;
+	this.seats[this.public.activeSeat].public.lastAction = 'BB';
+
 	this.emitEvent( 'table-data', this.public );
 	this.initializePreflop();
 };
@@ -482,6 +490,9 @@ Table.prototype.playerFolded = function() {
 		seat: this.public.activeSeat,
 		notification: 'Fold'
 	});
+
+	this.seats[this.public.activeSeat].public.lastAction = 'Fold';
+
 	this.emitEvent( 'table-data', this.public );
 
 	this.playersInHandCount--;
@@ -508,12 +519,17 @@ Table.prototype.playerFolded = function() {
  * When a player checks
  */
 Table.prototype.playerChecked = function() {
+
+	this.seats[this.public.activeSeat].public.lastAction = 'Check';
+
 	this.log({
 		message: this.seats[this.public.activeSeat].public.name + ' checked',
 		action: 'check',
 		seat: this.public.activeSeat,
 		notification: 'Check'
 	});
+
+	this.seats[this.public.activeSeat].public.lastAction = 'Check';
 
 	this.emitEvent( 'table-data', this.public );
 
@@ -538,6 +554,8 @@ Table.prototype.playerCalled = function() {
 		notification: 'Call'
 	});
 
+	this.seats[this.public.activeSeat].public.lastAction = 'Call';
+
 	this.emitEvent( 'table-data', this.public );
 
 	if( this.lastPlayerToAct === this.public.activeSeat || this.otherPlayersAreAllIn() ) {
@@ -560,6 +578,8 @@ Table.prototype.playerBetted = function( amount ) {
 		seat: this.public.activeSeat,
 		notification: 'Bet ' + amount
 	});
+
+	this.seats[this.public.activeSeat].public.lastAction = 'Bet';
 
 	this.emitEvent( 'table-data', this.public );
 
@@ -586,6 +606,9 @@ Table.prototype.playerRaised = function( amount ) {
 		seat: this.public.activeSeat,
 		notification: 'Raise ' + raiseAmount
 	});
+
+	this.seats[this.public.activeSeat].public.lastAction = 'Raise';
+
 	this.emitEvent( 'table-data', this.public );
 
 	var previousPlayerSeat = this.findPreviousPlayer();
@@ -849,6 +872,13 @@ Table.prototype.checkCombination = function() {
 				} );
 			}
 
+		}
+	})
+}
+Table.prototype.clearLastActions = function () {
+	this.seats.forEach( (player) => {
+		if (player) {
+			player.public.lastAction = ''
 		}
 	})
 }
