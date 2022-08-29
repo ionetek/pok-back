@@ -206,6 +206,7 @@ Table.prototype.initializeRound = function( changeDealer ) {
 	changeDealer = typeof changeDealer == 'undefined' ? true : changeDealer ;
 
 	if( this.playersSittingInCount > 1 ) {
+		this.clearLastActions();
 		// The game is on now
 		this.gameIsOn = true;
 		this.public.board = ['', '', '', '', ''];
